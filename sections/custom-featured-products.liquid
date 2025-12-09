@@ -1,0 +1,380 @@
+{% comment %}
+  Custom Featured Products Section
+  Displays a grid of selected products with customizable layout
+{% endcomment %}
+
+<div class="custom-featured-products" data-section-id="{{ section.id }}">
+  <div class="container">
+    
+    {% comment %} Section Title {% endcomment %}
+    {% if section.settings.section_title != blank %}
+      <h2 class="section-title">{{ section.settings.section_title }}</h2>
+    {% endif %}
+
+    {% comment %} Product Grid {% endcomment %}
+    {% if section.settings.product_list.count > 0 %}
+      <div class="products-grid products-per-row-{{ section.settings.products_per_row }}">
+        
+        {% for product in section.settings.product_list limit: section.settings.products_to_show %}
+          <div class="product-card">
+            
+            {% comment %} Product Image {% endcomment %}
+            <a href="{{ product.url }}" class="product-image-wrapper">
+              {% if product.featured_image %}
+                <img 
+                  src="{{ product.featured_image | image_url: width: 600 }}" 
+                  alt="{{ product.featured_image.alt | escape }}"
+                  loading="lazy"
+                  class="product-image"
+                >
+              {% else %}
+                <div class="product-image-placeholder">
+                  {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                </div>
+              {% endif %}
+            </a>
+
+            {% comment %} Product Info {% endcomment %}
+            <div class="product-info">
+              <h3 class="product-title">
+                <a href="{{ product.url }}">{{ product.title }}</a>
+              </h3>
+              
+              <div class="product-price">
+                {% if product.compare_at_price > product.price %}
+                  <span class="price-compare">{{ product.compare_at_price | money }}</span>
+                  <span class="price-sale">{{ product.price | money }}</span>
+                {% else %}
+                  <span class="price-regular">{{ product.price | money }}</span>
+                {% endif %}
+              </div>
+            </div>
+
+          </div>
+        {% endfor %}
+
+      </div>
+
+      {% comment %} View All Button {% endcomment %}
+      {% if section.settings.show_view_all %}
+        <div class="view-all-wrapper">
+          <a href="{{ section.settings.view_all_link }}" class="btn-view-all">
+            {{ section.settings.view_all_text }}
+          </a>
+        </div>
+      {% endif %}
+
+    {% else %}
+      {% comment %} Empty State - No Products Selected {% endcomment %}
+      <div class="empty-state">
+        <p>Please select products to display in this section.</p>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% comment %} Section Styles {% endcomment %}
+{% style %}
+  .custom-featured-products {
+    padding: 60px 0;
+    background-color: {{ section.settings.background_color }};
+  }
+
+  .custom-featured-products .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .section-title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 40px;
+    color: {{ section.settings.title_color }};
+  }
+
+  .products-grid {
+    display: grid;
+    gap: 30px;
+    margin-bottom: 40px;
+  }
+
+  .products-per-row-2 {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+  .products-per-row-3 {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+
+  .products-per-row-4 {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+
+  @media (min-width: 768px) {
+    .products-per-row-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .products-per-row-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .products-per-row-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .product-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: white;
+  }
+
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .product-image-wrapper {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .product-card:hover .product-image {
+    transform: scale(1.05);
+  }
+
+  .product-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .placeholder-svg {
+    width: 60%;
+    height: 60%;
+    opacity: 0.3;
+  }
+
+  .product-info {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-title {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .product-title a {
+    color: #333;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .product-title a:hover {
+    color: #000;
+  }
+
+  .product-price {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    margin-top: auto;
+  }
+
+  .price-regular {
+    color: #333;
+    font-size: 18px;
+  }
+
+  .price-compare {
+    color: #999;
+    text-decoration: line-through;
+    font-size: 16px;
+  }
+
+  .price-sale {
+    color: #e74c3c;
+    font-size: 18px;
+  }
+
+  .view-all-wrapper {
+    text-align: center;
+    margin-top: 20px;
+  }
+
+  .btn-view-all {
+    display: inline-block;
+    padding: 14px 32px;
+    background-color: {{ section.settings.button_color }};
+    color: {{ section.settings.button_text_color }};
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+
+  .btn-view-all:hover {
+    background-color: {{ section.settings.button_color | color_darken: 10 }};
+    transform: translateY(-2px);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: #f9f9f9;
+    border: 2px dashed #ddd;
+    border-radius: 8px;
+  }
+
+  .empty-state p {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
+  }
+
+  @media (max-width: 767px) {
+    .section-title {
+      font-size: 24px;
+      margin-bottom: 30px;
+    }
+
+    .products-grid {
+      gap: 20px;
+    }
+
+    .custom-featured-products {
+      padding: 40px 0;
+    }
+  }
+{% endstyle %}
+
+{% schema %}
+{
+  "name": "Custom Featured Products",
+  "tag": "section",
+  "class": "section-custom-featured-products",
+  "settings": [
+    {
+      "type": "text",
+      "id": "section_title",
+      "label": "Section Title",
+      "default": "Featured Products",
+      "info": "Leave blank to hide the title"
+    },
+    {
+      "type": "product_list",
+      "id": "product_list",
+      "label": "Products",
+      "info": "Select the products you want to feature",
+      "limit": 12
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "label": "Products to Show",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "products_per_row",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Products per Row (Desktop)",
+      "default": 3,
+      "info": "Mobile always shows 1 product per row"
+    },
+    {
+      "type": "header",
+      "content": "View All Button"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "label": "Show View All Button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "view_all_text",
+      "label": "Button Text",
+      "default": "View All Products"
+    },
+    {
+      "type": "url",
+      "id": "view_all_link",
+      "label": "Button Link",
+      "info": "Link to a collection or page"
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_color",
+      "label": "Button Background Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Custom Featured Products"
+    }
+  ]
+}
+{% endschema %}
